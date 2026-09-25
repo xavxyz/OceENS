@@ -24,4 +24,4 @@ venv/
 *.error
 
 # Fichiers de développement
-import/seed_answers*.csv
+src/oceens/import/seed_answers*.csv

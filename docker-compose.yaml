@@ -13,5 +13,5 @@ services:
       LOCAL_DATABASE_DIR: /app/database
     volumes:
       - ${LOCAL_DATABASE_DIR:-./database}:/app/database
-      - ./import:/app/import
+      - ./src/oceens/import:/app/src/oceens/import
     restart: always
