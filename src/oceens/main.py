@@ -29,7 +29,7 @@ import uvicorn
 from oceens.core.auth import AUTH_MODE, SECRET_KEY, router as auth_router
 from oceens.core.database import create_db_and_tables
 from oceens.core.dependencies import logger
-from oceens.core.seed import seed_all_if_necessary
+from oceens.seed import seed_all_if_necessary
 
 from oceens.routers import (
     pages,

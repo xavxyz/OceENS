@@ -100,7 +100,7 @@ A user can hold several roles, each with its own scope (program codes or campuse
 
 ### Seed users
 
-The demo data set (`core/seed.py`) contains, among others:
+The demo data set (`seed.py`) contains, among others:
 
 | Email | Roles |
 |-------|-------|
@@ -270,7 +270,7 @@ Only successful *synthèses* are counted. One cannot be priced when its counters
 
 Application logs use Python's standard `logging` module, through Uvicorn's loggers, so that the application's messages share the server's format, colours and handlers:
 
-- `logging.getLogger("uvicorn")`, shared as `logger` by `core/dependencies.py` and used by `core/auth.py` and `core/seed.py`, is set to `DEBUG`;
+- `logging.getLogger("uvicorn")`, shared as `logger` by `core/dependencies.py` and used by `core/auth.py` and `seed.py`, is set to `DEBUG`;
 - `logging.getLogger("uvicorn.error")`, used by `core/database.py` and `services/`, keeps Uvicorn's level (`INFO`).
 
 The daemon runs outside Uvicorn and configures its own `INFO` output.
@@ -306,7 +306,7 @@ New diagnostics should use a logger rather than `print()`. Uvicorn's handlers wr
 
 ## Project structure
 
-The code lives in a single package, `oceens`, under `src/oceens/`. Elsewhere in this README, paths to its files (`core/seed.py`, `services/llm_client.py`…) are relative to that directory.
+The code lives in a single package, `oceens`, under `src/oceens/`. Elsewhere in this README, paths to its files (`core/auth.py`, `services/llm_client.py`…) are relative to that directory.
 
 ```
 OceENS/
@@ -326,13 +326,13 @@ OceENS/
 │   ├── sondage_loader.py         #   Loads a full sondage for export
 │   ├── survey_loader_from_xlsx.py  # Imports sondages from an Excel file
 │   ├── summaries_generator_daemon.py  # Synthèses daemon (separate process)
+│   ├── seed.py                   #   Initial data and program sync
 │   │
 │   ├── core/                     #   Low-level access and security
 │   │   ├── auth.py               #     Microsoft Entra ID authentication and dev login
 │   │   ├── database.py           #     SQLite engine and SessionDep dependency
 │   │   ├── security.py           #     Roles, scopes, access control
-│   │   ├── dependencies.py       #     Shared Jinja templates and logger
-│   │   └── seed.py               #     Initial data and program sync
+│   │   └── dependencies.py       #     Shared Jinja templates and logger
 │   │
 │   ├── models/                   #   SQLModel schema, one file per table
 │   │   ├── __init__.py           #     Re-exports every class (see its docstring)
@@ -386,6 +386,12 @@ OceENS/
 ├── database/                     # SQLite database (ignored by Git)
 │   └── db_oceens.db
 │
+├── tach.toml                     # Package boundary rules (see "Package boundaries")
+├── scripts/
+│   └── check_cycles.py           #   Rejects import cycles between packages
+├── .github/workflows/
+│   └── structure.yml             #   Runs the package structure checks on every push
+│
 ├── docs/
 │   ├── adr/                      #   Architecture decision records
 │   ├── agents/                   #   Configuration of the agent skills
@@ -394,6 +400,23 @@ OceENS/
 └── llm-utils/                    # LLM tools outside the application
     └── README.md                 #   (cost tracking moved into the app, see above)
 ```
+
+### Package boundaries
+
+`core`, `models`, `routers` and `services` are the packages of `oceens`; the loose modules beside them (`main.py`, `seed.py`, the loaders, the daemon) are application code that may use any of them. Four rules hold, and CI fails when one breaks:
+
+- **Private means a leading underscore.** From outside a package, a name is importable only if no segment of its path starts with `_`. Inside a package, modules import each other freely.
+- **No import cycle between packages**, including one routed through a loose module such as `seed.py`.
+- **Every import goes through `oceens`**, never through the working directory, and nothing touches `sys.path`.
+- **Only declared dependencies are imported.**
+
+```bash
+uv run tach check                      # private names
+uv run tach check-external             # undeclared imports, including working-directory ones
+uv run python scripts/check_cycles.py  # cycles between packages
+```
+
+Adding a package, or a private module inside one, needs no edit to `tach.toml`.
 
 ---
 
@@ -495,7 +518,7 @@ The « Utilisateurs » tab of the admin dashboard has a **« + Ajouter un utilis
 
 ## Before contributing
 
-The repository has no automated test suite and no CI yet. Before proposing a change, run the static checks and, if the change touches startup, configuration, dependencies or the container, the rest of the [manual smoke test](docs/smoke-test.md). Then test the affected routes by hand on a throwaway SQLite database (never a copy of production), with the relevant roles and *sondage* statuses.
+The repository has no automated test suite. CI runs only the [package boundary checks](#package-boundaries). Before proposing a change, run those and the static checks and, if the change touches startup, configuration, dependencies or the container, the rest of the [manual smoke test](docs/smoke-test.md). Then test the affected routes by hand on a throwaway SQLite database (never a copy of production), with the relevant roles and *sondage* statuses.
 
 Architecture decisions are recorded in [`docs/adr/`](docs/adr/).
 

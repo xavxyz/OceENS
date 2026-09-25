@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 # Dépendances d'abord, depuis le lockfile : cette couche reste en cache tant
 # que pyproject.toml et uv.lock ne changent pas
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-install-project
+RUN uv sync --locked --no-dev --no-install-project
 
 # Puis le paquet oceens lui-même (code, templates, static, import)
 COPY README.md ./
 COPY src src
-RUN uv sync --locked
+RUN uv sync --locked --no-dev
 
 ENV PATH="/app/.venv/bin:$PATH"
 # La racine du projet n'est pas un clone : le dossier de la base est explicite.

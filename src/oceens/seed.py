@@ -44,7 +44,7 @@ from oceens.services.settings_store import (
 logger = logging.getLogger("uvicorn")
 
 # Données de seed livrées avec le paquet : filières et réponses de démo
-IMPORT_DIR = Path(__file__).resolve().parent.parent / "import"
+IMPORT_DIR = Path(__file__).resolve().parent / "import"
 
 
 
