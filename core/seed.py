@@ -63,6 +63,17 @@ ADDITIONAL_STUDENT_USERS = [
 ]
 
 
+# Un utilisateur par rôle à périmètre, sans autre rôle : de quoi se connecter
+# en simple animateur, responsable de formation ou direction de campus. Les
+# périmètres correspondent aux sondages de démo (MDAI5, Montpellier).
+# user_id, mail, rôle
+SINGLE_ROLE_USERS = [
+    (23, "oceens.facilitator@epf.fr", "facilitator:MDAI5"),
+    (24, "oceens.program-manager@epf.fr", "program_manager:MDAI5"),
+    (25, "oceens.campus-manager@epf.fr", "campus_manager:Montpellier"),
+]
+
+
 # submission_id, user_id, created_at
 SEEDED_SUBMISSIONS = [
     (1, 1, "2026-06-30 16:24:04"),
@@ -119,6 +130,7 @@ def seed_users(session: Session):
         (7, "arnaud.jousset@epf.fr"),
         (8, "etienne.gibaud@epf.fr"),
         *ADDITIONAL_STUDENT_USERS,
+        *((user_id, mail) for user_id, mail, _role in SINGLE_ROLE_USERS),
     ]
     for u_data in user_data:
         user = User(user_id=u_data[0], mail=u_data[1])
@@ -138,6 +150,7 @@ def seed_roles(session: Session):
         (6, "campus_manager:Montpellier"),
         (7, "admin"),
         (8, "admin"),
+        *((user_id, role) for user_id, _mail, role in SINGLE_ROLE_USERS),
     ]
     for r_data in role_data:
         role = Role(user_id=r_data[0], role=r_data[1])

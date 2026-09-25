@@ -109,9 +109,12 @@ The demo data set (`core/seed.py`) contains, among others:
 | `antoine.gademer@epf.fr` | `admin`, `program_manager:MDAI5` |
 | `yassine.gharbi@epfedu.fr` | `admin`, `campus_manager:Montpellier` |
 | `arnaud.jousset@epf.fr`, `etienne.gibaud@epf.fr` | `admin` |
+| `oceens.facilitator@epf.fr` | `facilitator:MDAI5` |
+| `oceens.program-manager@epf.fr` | `program_manager:MDAI5` |
+| `oceens.campus-manager@epf.fr` | `campus_manager:Montpellier` |
 | `bob.leponge@epfedu.fr`, `peter.parker@epfedu.fr`, `oceens.student07@epf.fr` … `oceens.student20@epf.fr` | none (students) |
 
-Both manager accounts are also admins and land on the admin dashboard; open `/dashboard/program-manager` or `/dashboard/campus-manager` directly for their views. The seed has no facilitator: give a user that role from the admin dashboard's users tab.
+`antoine.gademer@epf.fr` and `yassine.gharbi@epfedu.fr` are also admins and land on the admin dashboard; open `/dashboard/program-manager` or `/dashboard/campus-manager` directly for their views. `oceens.facilitator@epf.fr`, `oceens.program-manager@epf.fr` and `oceens.campus-manager@epf.fr` hold a single role each and land on their own dashboard: the first two see the MDAI5 demo *sondage*, the campus manager the Montpellier ones (MDAI4, MDAI5). These users are only seeded into an empty database: delete the database file to get them on an existing install.
 
 ---
 
