@@ -7,6 +7,10 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      # LOCAL_DATABASE_DIR désigne le dossier de l'hôte (volume ci-dessous) ;
+      # dans le conteneur, la base est toujours dans le point de montage.
+      LOCAL_DATABASE_DIR: /app/database
     volumes:
       - ${LOCAL_DATABASE_DIR:-./database}:/app/database
       - ./import:/app/import
