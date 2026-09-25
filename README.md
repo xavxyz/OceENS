@@ -522,6 +522,41 @@ The repository has no automated test suite. CI runs only the [package boundary c
 
 Architecture decisions are recorded in [`docs/adr/`](docs/adr/).
 
+### Keeping a fork in sync with `course-2026`
+
+The reference `course-2026` branch lives on [`xavxyz/OceENS`](https://github.com/xavxyz/OceENS). To rebase a fork's `course-2026` on it:
+
+```bash
+# Once: add the reference fork as a remote
+git remote add xavier https://github.com/xavxyz/OceENS.git
+
+# Each time: fetch and replay your commits on top of the reference branch
+git fetch xavier
+git switch course-2026
+git rebase xavier/course-2026
+# On conflict: fix the files, `git add` them, then `git rebase --continue` (or `git rebase --abort`)
+
+# The rebase rewrites history, so the push must be forced
+git push --force-with-lease origin course-2026
+```
+
+If the reference branch's history was rewritten after you based your work on it, a plain rebase replays its old commits too. Replay only your own commits instead, where `<old-base>` is the last reference commit your branch was built on (see `git log --oneline course-2026`):
+
+```bash
+git rebase --onto xavier/course-2026 <old-base> course-2026
+```
+
+If your `course-2026` has no commits of its own, reset it instead. This discards anything on it that is not on the reference branch:
+
+```bash
+git fetch xavier
+git switch course-2026
+git reset --hard xavier/course-2026
+git push --force-with-lease origin course-2026
+```
+
+`git config rerere.enabled true` makes git remember conflict resolutions, so the same conflict is not solved twice across rebases.
+
 ---
 
 ## Resources
