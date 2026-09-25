@@ -26,10 +26,10 @@ The documentation is in English; the product's own vocabulary (*sondage*, *synth
 
 ## Quick start
 
-A fresh clone runs locally in [dev mode](#dev-mode-authentication), with no Entra or LLM credentials. `.env.example` is set up for exactly that.
+A fresh clone runs locally in [dev mode](#dev-login), with no Entra or LLM credentials. `.env.example` is set up for exactly that.
 
 ```bash
-git clone <repo-url>
+git clone <repo-url> OceENS
 cd OceENS
 cp .env.example .env          # Windows (PowerShell): Copy-Item .env.example .env
 ```
@@ -69,15 +69,15 @@ The application runs normally without an LLM key; only *synthèses* are unavaila
 
 ## Configuration
 
-The application reads its configuration from environment variables. `main.py`, `core/auth.py` and the daemon load `.env` at startup (`load_dotenv()`), without overriding variables already set in the environment. [`.env.example`](.env.example) lists every variable. Copy it to `.env` and fill it in. The table below is the reference.
+The application reads its configuration from environment variables. The application and the daemon load `.env` at startup (`load_dotenv()`), without overriding variables already set in the environment. [`.env.example`](.env.example) lists every variable. Copy it to `.env` and fill it in. The table below is the reference.
 
 | Variable | Default | Meaning |
 |----------|---------|---------|
-| `AUTH_MODE` | `entra` | `entra` (Microsoft Entra ID) or `dev` ([dev login](#dev-mode-authentication)), case- and whitespace-insensitive. Any other value stops the application at startup (exit code 1). `.env.example` ships `dev`. |
+| `AUTH_MODE` | `entra` | `entra` (Microsoft Entra ID) or `dev` ([dev login](#dev-login)), case- and whitespace-insensitive. Any other value stops the application at startup (exit code 1). `.env.example` ships `dev`. |
 | `DEV_LOGIN_KEY` | unset | `dev` mode only. When set, every dev login must provide it, otherwise `401`. When unset, the dev login is open to anyone. Ignored, with a warning, in `entra`. |
 | `SECRET_KEY` | unset | Signs the session cookies: anyone who knows it can forge a session, including an admin one. **Required in `entra`**: when missing or empty, the application logs a critical error and exits at startup (code 1). Optional in `dev`: when missing, a random key is drawn at each start (with a warning), and sessions are lost on restart. Generate one with `python -c "import secrets; print(secrets.token_urlsafe(32))"`. |
 | `ALLOWED_DOMAINS` | see meaning | Comma-separated email domains allowed to log in. Unset, it defaults to `epf.fr,epfedu.fr` in `dev`; in `entra`, **no domain is allowed**, so nobody can log in. The same list validates the emails an admin adds and the students enrolled in a *sondage*, where it always defaults to `epf.fr,epfedu.fr`. |
-| `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET`, `ENTRA_TENANT_ID` | unset | Entra ID application, from the Azure portal. Required in `entra`: if one is missing, the application exits at startup (code 1). Unused in `dev`. |
+| `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET`, `ENTRA_TENANT_ID` | unset | Entra ID application, from the Azure portal. Required in `entra`: if one is unset, the application exits at startup (code 1). An empty value is not caught. Unused in `dev`. |
 | `REDIRECT_URI` | `https://localhost/auth/callback` | Entra callback URL, registered in the Azure application. The Microsoft logout also sends the user back to it, without its path. Unused in `dev`. |
 | `LOCAL_DATABASE_DIR` | `database/` | Directory of the SQLite file `db_oceens.db`, created if needed. A relative path is resolved from the project root. With Docker Compose, it is the host directory mounted into the container. |
 | `LLM_API_KEY` | unset | Key of the default LLM provider, *Ollama EPF*. EPF students get their own key at <https://locallm.mde.epf.fr> by logging in with their EPF account. Other providers use their own variables, see [LLM providers](#llm-providers). |
@@ -123,7 +123,7 @@ Pages:
 |-------|-------------|
 | `/` | Home. Redirects a logged-in user to their dashboard. |
 | `/login`, `/auth/callback`, `/logout` | Microsoft Entra ID authentication flow. In `dev`, `/login` redirects to `/dev/login` and `/auth/callback` does not exist. |
-| `/dev/login` | Dev login, `dev` only: user picker on `GET`, login on `POST` (see [Dev mode authentication](#dev-mode-authentication)). |
+| `/dev/login` | Dev login, `dev` only: user picker on `GET`, login on `POST` (see [Dev login](#dev-login)). |
 | `/dashboard/student` | Student dashboard. |
 | `/dashboard/program-manager` | Program manager dashboard. |
 | `/dashboard/facilitator` | Facilitator dashboard (also open to `admin`). |
@@ -419,7 +419,7 @@ The session only holds the user's identity: roles are read from the database on 
 
 ---
 
-## Dev mode authentication
+## Dev login
 
 To work on a fork without an Azure application, the **dev login** (`AUTH_MODE=dev`) lets you log in as any user, with no proof of identity. It must **never** be used in production. Its variables (`AUTH_MODE`, `DEV_LOGIN_KEY`, `SECRET_KEY`, `ALLOWED_DOMAINS`) are described in [Configuration](#configuration).
 
