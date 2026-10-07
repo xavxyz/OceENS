@@ -6,7 +6,7 @@ Course evaluation platform built for the EPF engineering school.
 
 **OcéEns II** lets program managers, facilitators, campus directors and administrators create and manage course evaluation *sondages* for EPF's programs, and lets students answer them. Answers can be exported, visualised, and summarised by an LLM into *synthèses*. The interface is in French and uses EPF's official visual identity.
 
-The documentation is in English; the product's own vocabulary (*sondage*, *synthèse*, on-screen labels) stays in French. [`CONTEXT.md`](CONTEXT.md) defines that boundary.
+The documentation is in English; the product's own vocabulary (*sondage*, *synthèse*, on-screen labels) stays in French. [`GLOSSARY.md`](GLOSSARY.md) defines that boundary.
 
 ### Tech stack
 
@@ -319,7 +319,7 @@ OceENS/
 ├── .env.example                  # Configuration template, to copy to .env
 ├── .env                          # Environment variables (⚠️ not committed)
 ├── Template_2025.md              # End-of-semester sondage questions, in Markdown
-├── CONTEXT.md                    # Domain glossary
+├── GLOSSARY.md                   # Domain glossary
 │
 ├── src/oceens/                   # The oceens package
 │   ├── main.py                   #   FastAPI factory, middlewares and router assembly
